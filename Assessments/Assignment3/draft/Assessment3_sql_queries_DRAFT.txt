@@ -1,0 +1,389 @@
+-- USE DATABASE FITNESSCENTER
+use FitnessCenter;
+
+
+
+-- QUERIES TO INSERT DATA INTO TABLE
+/*
+INSERT INTO <table_name> VALUES
+(---, ----, ----, ----, ----),
+(---, ----, ----, ----, ----);-- to insert values in the table as per column series
+
+
+INSERT INTO <table_name> (column2, column3, column4) VALUES 
+(----, ----, ----),
+(----, ----, ----); -- to insert values in the table in specific columns
+
+-- SEE Fitness_center.sql to see 'Queries to insert data into tables: Members, Trainers, Sessions, Membership
+
+*/
+
+
+-- QUERIES TO RETRIEVE DATA
+
+   -- to see all information in table - members
+SELECT
+	*
+FROM
+	members;
+
+
+   
+-- total number of memebers
+SELECT
+	count(member_id) AS Total_members
+FROM
+	members;
+
+
+
+-- to see list of members whose age greater than 40
+SELECT
+	first_name AS names,
+	age
+FROM
+	members
+WHERE
+	age>40;
+
+
+
+-- select members between 20 to 40 age, order by age in descending
+SELECT
+	member_id,
+	first_name,
+	age
+FROM
+	members
+WHERE
+	age>20
+	AND age<40
+ORDER BY
+	age DESC;
+
+
+
+-- to see average age of memebers
+SELECT
+	avg(age)
+FROM
+	members;
+ 
+
+
+
+-- delete  data
+DELETE FROM membership WHERE member_id=15;
+
+-- to check if the data is deleted
+SELECT
+	*
+FROM
+	membership;
+
+-- add data
+INSERT
+	membership
+VALUES ('115', 'Bronze',
+'15');
+
+-- data is added back to table
+SELECT
+	*
+FROM
+	membership;
+
+
+
+
+
+-- to see membership count
+SELECT
+	membership_type,
+	count(membership_type) AS counts
+FROM
+	membership
+GROUP BY
+	membership_type
+ORDER BY
+	counts DESC;
+
+
+
+
+-- number of registrations each month
+SELECT
+	MONTHNAME(joining_date) AS joining_month,
+	count(*) AS entries
+FROM
+	members
+GROUP BY
+	MONTHNAME(joining_date);
+
+
+
+
+-- most popular month for registration
+SELECT
+	MONTHNAME(joining_date) AS popular_month,
+	count(*) AS entries
+FROM
+	members
+GROUP BY
+	MONTHNAME(joining_date)
+ORDER BY
+	entries DESC
+LIMIT 1;
+
+
+
+
+-- to see most popular session - output session_id and number of sessions
+-- session_name and count of sessions, order by DESC, limit 1*/
+
+SELECT
+	session_id, count(session_id) AS NumberOfSession
+FROM
+	sessions
+GROUP BY
+	session_id
+ORDER BY
+	NumberOfSession DESC
+LIMIT 1;
+
+
+
+
+-- to see most popular session - output session_name, session_id and number of sessions
+-- session_name and count of sessions, order by DESC, limit 1*/
+
+SELECT
+	  st.session_name AS popular_session, s.session_id, count(s.session_id) AS NumberOfSession
+FROM
+	sessions AS s JOIN sessiontypes AS st ON s.session_id = st.session_id
+
+	GROUP BY
+	s.session_id
+ORDER BY
+	NumberOfSession DESC
+LIMIT 1;
+
+--------------------------------------------------------------------
+
+DATE: 14 April 2026
+
+-- USE DATABASE FITNESSCENTER
+use FitnessCenter;
+
+
+
+-- QUERIES TO INSERT DATA INTO TABLE
+/*
+INSERT INTO <table_name> VALUES
+(---, ----, ----, ----, ----),
+(---, ----, ----, ----, ----);-- to insert values in the table as per column series
+
+
+INSERT INTO <table_name> (column2, column3, column4) VALUES 
+(----, ----, ----),
+(----, ----, ----); -- to insert values in the table in specific columns
+
+-- SEE Fitness_center.sql to see 'Queries to insert data into tables: Members, Trainers, Sessions, Membership
+
+*/
+
+
+-- QUERIES TO RETRIEVE DATA
+
+   -- to see all information in table - members
+SELECT
+	*
+FROM
+	members;
+
+
+   
+-- total number of memebers
+SELECT
+	count(member_id) AS Total_members
+FROM
+	members;
+
+
+
+-- to see list of members whose age greater than 40
+SELECT
+	first_name AS names,
+	age
+FROM
+	members
+WHERE
+	age>40;
+
+
+
+-- select members between 20 to 40 age, order by age in descending
+SELECT
+	member_id,
+	first_name,
+	age
+FROM
+	members
+WHERE
+	age>20
+	AND age<40
+ORDER BY
+	age DESC;
+
+
+
+-- to see average age of memebers
+SELECT
+	avg(age)
+FROM
+	members;
+ 
+
+
+
+-- delete  data
+DELETE FROM membership WHERE member_id=15;
+
+-- to check if the data is deleted
+SELECT
+	*
+FROM
+	membership;
+
+-- add data
+INSERT
+	membership
+VALUES ('115', 'Bronze',
+'15');
+
+-- data is added back to table
+SELECT
+	*
+FROM
+	membership;
+
+
+
+
+
+-- to see membership count
+SELECT
+	membership_type,
+	count(membership_type) AS counts
+FROM
+	membership
+GROUP BY
+	membership_type
+ORDER BY
+	counts DESC;
+
+
+
+
+-- number of registrations each month
+SELECT
+	MONTHNAME(joining_date) AS joining_month,
+	count(*) AS No_of_entries
+FROM
+	members
+GROUP BY
+	MONTHNAME(joining_date);
+
+
+
+
+-- most popular month for registration
+SELECT
+	MONTHNAME(joining_date) AS Popular_month,
+	count(*) AS No_of_entries
+FROM
+	members
+GROUP BY
+	MONTHNAME(joining_date)
+ORDER BY
+	No_of_entries DESC
+LIMIT 1;
+
+
+
+
+-- to see most popular session - output session_name, session_id and number of sessions
+-- session_name and count of sessions, order by DESC, limit 1*/
+-- using inner join
+
+SELECT
+	  st.session_name AS popular_session,
+	s.session_id,
+	count(s.session_id) AS NumberOfSession
+FROM
+	sessions AS s
+JOIN sessiontypes AS st ON
+	s.session_id = st.session_id
+GROUP BY
+	s.session_id
+ORDER BY
+	NumberOfSession DESC
+LIMIT 1;
+
+
+
+
+-- Revenue to fitnesscenter per membership_type
+-- using left (outer) join
+SELECT
+	ms.membership_type,
+	count(ms.membership_id) * mst.membership_price AS Total_Income_per_type
+FROM
+	Membership ms
+LEFT JOIN MembershipTypes mst ON
+	ms.membership_type = mst.membership_type
+GROUP BY
+	ms.membership_type;
+
+
+
+
+-- types of membership registered each month
+-- using right (outer) join
+SELECT
+	monthname(m.joining_date) AS joining_month,
+	ms.membership_type,
+	count(ms.membership_type) AS registration_count
+FROM
+	Members m
+RIGHT JOIN Membership ms 
+ON
+	m.member_id = ms.member_id
+GROUP BY
+	ms.membership_type,
+	joining_month;
+
+
+
+
+-- Revenue to fitnesscenter per month
+-- using left (outer join)
+SELECT
+	monthname(m.joining_date) AS joining_month,
+	sum(mst.membership_price) AS Revenue_per_month
+FROM
+	Members m
+JOIN Membership ms 
+ON
+	m.member_id = ms.member_id
+LEFT JOIN MembershipTypes mst ON
+	ms.membership_type = mst.membership_type
+GROUP BY
+	monthname(m.joining_date);
+
+
+-
+
+
+
+

@@ -1,0 +1,260 @@
+/************************ ASSIGNMENT - 3 ******************************
+ ************************* DATA AND MYSQL *****************************/
+
+-- PART 1 - -- CREATE DATABASE,  CREATE TABLES AND INSERT DATA IN TABLES
+
+
+-- ----------------------------------------------------------------------------
+
+--                                 CREATE DATABASE
+
+-- ----------------------------------------------------------------------------
+
+drop database if exists FitnessCenter;
+CREATE database FitnessCenter;
+use FitnessCenter;
+
+
+-- ----------------------------------------------------------------------------
+
+--                   CREATE TABLES - 6 tables are created
+
+-- ----------------------------------------------------------------------------
+
+CREATE TABLE Members (
+
+    member_id INT AUTO_INCREMENT PRIMARY KEY,
+
+    first_name VARCHAR(100) NOT NULL,
+
+    last_name VARCHAR(100),
+
+    email VARCHAR(100),
+
+    joining_date DATE,
+    
+    age  INT NOT NULL 
+    
+);
+
+
+
+
+CREATE TABLE Trainers (
+
+    trainer_id INT UNIQUE PRIMARY KEY,
+
+    first_name VARCHAR(100) NOT NULL,
+
+    last_name VARCHAR(100),
+
+    email VARCHAR(100),
+    
+    rate_per_hour DECIMAL (5,2)
+
+);
+
+
+
+
+CREATE TABLE SessionTypes (
+	
+	session_id INT PRIMARY KEY,
+	
+	session_name VARCHAR(100)
+	
+);
+	
+
+
+
+CREATE TABLE Sessions (
+	
+	sl_id INT AUTO_INCREMENT PRIMARY KEY,
+	
+	session_id INT, 
+	
+	trainer_id INT,
+	
+	member_id INT,
+	
+	FOREIGN KEY (session_id) REFERENCES SessionTypes(session_id),
+	
+	FOREIGN KEY (trainer_id) REFERENCES Trainers(trainer_id),
+	
+	FOREIGN KEY (member_id) REFERENCES Members(member_id)
+	
+);
+
+
+
+
+CREATE TABLE MembershipTypes(
+
+	membership_type VARCHAR(100) PRIMARY KEY,
+	
+	membership_price DECIMAL (5,2) NOT NULL 
+	
+);
+
+
+
+
+CREATE TABLE Membership(
+
+	membership_id INT AUTO_INCREMENT PRIMARY KEY,
+	
+	membership_type VARCHAR(100), 
+	
+	member_id INT NOT NULL,
+	
+	membership_period INT NOT NULL,
+	
+	FOREIGN KEY (membership_type) REFERENCES MembershipTypes(membership_type),
+	
+	FOREIGN KEY (member_id) REFERENCES Members(member_id)
+	
+);
+
+ALTER TABLE Membership AUTO_INCREMENT=101; -- set the starting value of auto_increment from 101.
+
+
+
+-- ----------------------------------------------------------------------------
+
+--                            INSERT DATA INTO TABLES 
+
+-- ----------------------------------------------------------------------------
+
+/* insert values into Members table. 
+Note: member_id is AUTO_INCREMENT hence require no input */
+
+INSERT INTO Members(first_name, last_name, email, joining_date, age) VALUES
+('Alan', 'George', 'alan@example.com', '2026-01-05', '25'),
+('Henk', 'Pot', 'henk@example.com', '2026-01-15', '40'),
+('Tony', 'Joy', 'tony@example.com', '2026-02-02', '30'),
+('Evan', 'Tob', 'evan@example.com', '2026-02-12', '29'),
+('Chris', 'Jones', 'chris@example.com', '2026-02-22', '39'),
+('Tania', 'Smith', 'tania@example.com', '2026-02-28', '28'),
+('Eliz', 'Beth', 'eliz@example.com', '2026-03-02', '45'),
+('Rita', 'Walsh', 'rita@example.com', '2026-03-09', '50'),
+('David', 'Walsh', 'david@example.com', '2026-04-01', '54'),
+('Robert', 'Frek', 'robert@example.com', '2026-04-08', '22'),
+('Jay', 'Krishna', 'jay@example.com', '2026-04-10','26'),
+('Jack', 'Jill', 'jack@example.com', '2026-04-11', '23'),
+('James', 'Watt', 'james@example.com', '2026-04-11', '24'),
+('Mark', 'Hill', 'mark@example.com', '2026-04-14', '40'),
+('Rory', 'Roar', 'rory@example.com', '2026-04-16', '42');
+
+-- The below query is to validate that all data is inserted into the table
+-- SELECT * FROM members; 
+
+-- ----------------------------------------------------------------------------
+
+-- insert values into Trainers table.
+
+INSERT INTO Trainers VALUES
+('1001', 'Elie', 'Josh', 'elie@example.com', '20'),
+('1002', 'Fred', 'Fox', 'fred@example.com', '30'),
+('1003', 'Jess', 'Roy', 'jess@example.com', '25'),
+('1004', 'Jon', 'Felix', 'jon@example.com', '40'),
+('1005', 'Steve', 'Brown', 'steve@example.com', '35'),
+('1006', 'Tina', 'Bass', 'tina@example.com', '18'),
+('1007', 'Michelle', 'Bush', 'michelle@example.com', '28'),
+('1008', 'Rob', 'Box', 'rob@example.com', '50');
+
+-- The below query is to validate that all data is inserted into the table
+-- SELECT * FROM trainers;
+
+-- ----------------------------------------------------------------------------
+
+-- insert values into SessionTypes table.
+
+INSERT INTO SessionTypes VALUES 
+('1', 'Core'),
+('2', 'Ride'),
+('3', 'Strength'),
+('4', 'Lift'),
+('5', 'Body_pump'),
+('6', 'Pilates'),
+('7', 'HIIT'),
+('8', 'GRIT');
+
+-- The below query is to validate that all data is inserted into the table
+-- SELECT * FROM SessionTypes;
+
+-- ----------------------------------------------------------------------------
+
+-- insert values into Sessions table.
+
+INSERT INTO Sessions (session_id, trainer_id, member_id) VALUES
+('1', '1001', '1'),
+('2', '1002', '2'),
+('3', '1004', '4'),
+('4', '1003', '3'),
+('5', '1006', '5'),
+('6', '1005', '6'),
+('7', '1007', '7'),
+('8', '1008', '8'),
+('2', '1002', '11'),
+('6', '1004', '8'),
+('1', '1001', '4'),
+('7', '1007', '2'),
+('6', '1005', '12'),
+('6', '1004', '11'),
+('1', '1001', '8'),
+('6', '1005', '8'),
+('3', '1005', '13'),
+('4', '1003', '13'),
+('2', '1002', '10'),
+('1', '1001', '10'),
+('3', '1004', '12'),
+('5', '1006', '12'),
+('8', '1008', '9'),
+('3', '1004', '6'),
+('4', '1003', '6'),
+('7', '1007', '12'),
+('6', '1005', '3'),
+('3', '1004', '15'),
+('6', '1005', '14');
+
+-- The below query is to validate that all data is inserted into the table
+-- SELECT * FROM sessions;
+
+-- ----------------------------------------------------------------------------
+
+-- insert values into MembershipTypes table. 
+
+INSERT INTO MembershipTypes VALUES
+('Bronze', '18.99'),
+('Silver', '24.99'),
+('Gold', '39.99'),
+('Platinum', '80.00');
+
+-- The below query is to validate that all data is inserted into the table
+-- SELECT * FROM MembershipTypes;
+
+-- ----------------------------------------------------------------------------
+
+/* insert values into Membership table. 
+Note: membership_id is auto_increment */
+
+INSERT INTO membership(membership_type, member_id, membership_period) VALUES -- membership_id is auto_increment with start value = 101
+('Bronze', '1', '3'),
+('Silver', '2', '6'),
+('Gold', '3',  '8'),
+('Bronze', '4', '2'),
+('Bronze', '5', '5'),
+('Silver', '6', '3'),
+('Gold', '7', '1'),
+('Gold', '8', '4'),
+('Silver', '9', '1'),
+('Bronze', '10', '10'),
+('Bronze', '11', '7'),
+('Gold', '12', '9'),
+('Bronze', '13', '1'),
+('Silver', '14', '3'),
+('Silver', '15', '3');
+
+-- The below query is to validate that all data is inserted into the table
+-- SELECT * FROM membership;

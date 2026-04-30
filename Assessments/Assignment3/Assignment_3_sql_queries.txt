@@ -1,0 +1,314 @@
+/************************ ASSIGNMENT - 3 ******************************
+ ************************* DATA AND MYSQL *****************************/
+
+-- PART 2 --- CODES TO RETRIVE INFORMATION FROM DATABASE - FitnessCenter
+
+----------------------------------------------------------------------------
+
+-- USE DATABASE FITNESSCENTER
+use FitnessCenter;
+
+
+--------------------------------------------------------------------------
+-- QUERY 1: insert dat into table(s)
+
+-- See PART 1 OF Assignement 3. one example below
+
+INSERT
+	members (first_name,
+	last_name,
+	email,
+	joining_date,
+	age)
+VALUES ('Tom',
+'Jerry', 'tom@example.com',
+'2026-04-16',
+'24');
+
+--------------------------------------------------------------------------
+
+
+
+-------------------------------------------------------------------------
+-- QUERY 2: delete  a row in members table
+ /* here memeber_id is not used to delete the row because number_id is auto_increment,
+we don't know what will be the id for the row to be deleted. hence other values in the table are used */  
+
+DELETE
+FROM
+	members
+WHERE
+	first_name = 'Tom'
+	AND last_name = 'Jerry'
+	AND email = 'tom@example.com';
+
+-------------------------------------------------------------------------
+
+
+
+------------------------ QUERIES TO RETRIEVE DATA ---------------------------------------
+
+-- QUERY 3: see all information in table - members
+
+SELECT
+	*
+FROM
+	members;
+
+----------------------------------------------------------------------------
+   
+-- QUERY 4: check total number of memebers in members table
+
+SELECT
+	count(member_id) AS Total_members
+FROM
+	members;
+
+----------------------------------------------------------------------------
+
+-- QUERY 5: list of members whose age is greater than 40, order by age descending(default)
+
+SELECT
+	concat(first_name, " ", last_name)  AS Full_name,
+	age
+FROM
+	members
+WHERE
+	age > 40 ORDER BY age;
+
+----------------------------------------------------------------------------
+
+-- QUERY 6: select members between 20 to 40 age, order by age in descending
+
+SELECT
+	member_id,
+	concat(first_name, " ", last_name) AS full_name,
+	age
+FROM
+	members
+WHERE
+	age BETWEEN  20 AND 40
+ORDER BY
+	age ASC ;
+
+----------------------------------------------------------------------------
+
+-- QUERY 7: average age of memebers
+
+SELECT
+	avg(age) AS average_age
+FROM
+	members;
+ 
+----------------------------------------------------------------------------
+
+-- QUERY 8: membership count by membership_type
+
+SELECT
+	membership_type,
+	count(membership_type) AS counts
+FROM
+	membership
+GROUP BY
+	membership_type
+ORDER BY
+	counts DESC;
+
+----------------------------------------------------------------------------
+
+-- QUERY 9: number of registrations each month
+
+SELECT
+	MONTHNAME(joining_date) AS joining_month,
+	count(*) AS No_of_entries
+FROM
+	members
+GROUP BY
+	MONTHNAME(joining_date);
+
+----------------------------------------------------------------------------
+
+-- QUERY 10: most popular month for registration - used order by and limit to get most popualar month
+
+SELECT
+	MONTHNAME(joining_date) AS Popular_month,
+	count(*) AS No_of_entries
+FROM
+	members
+GROUP BY
+	MONTHNAME(joining_date)
+ORDER BY
+	No_of_entries DESC
+LIMIT 1;
+
+----------------------------------------------------------------------------
+
+
+-- QUERY 11: higest rate and lowest rate of trainer per hour
+
+SELECT
+	max(rate_per_hour) AS HighestHourRate,
+	min(rate_per_hour) AS LowestHourRate
+FROM
+	trainers;
+
+----------------------------------------------------------------------------
+
+-- QUERY 12: most popular session - using inner join and order by position - DESC, limit 1
+
+SELECT
+	  s.session_id, st.session_name AS popular_session,
+	count(s.session_id) AS count_of_session
+FROM
+	sessions AS s
+INNER JOIN sessiontypes AS st ON
+	s.session_id = st.session_id
+GROUP BY
+	s.session_id
+ORDER BY
+	3 DESC
+LIMIT 1;
+
+----------------------------------------------------------------------------
+
+-- QUERY 13: Revenue to fitness center by membership_type - using left (outer) join
+
+SELECT
+	mst.membership_type,
+	count(ms.membership_id) * mst.membership_price AS Total_Income_per_type
+FROM
+	membershiptypes mst
+LEFT JOIN membership ms ON
+	mst.membership_type = ms.membership_type
+GROUP BY
+	mst.membership_type;
+
+
+----------------------------------------------------------------------------
+
+-- QUERY 14: Revenue to fitness center per month - using two inner join
+
+SELECT
+	monthname(m.joining_date) AS Joining_Month,
+	sum(mst.membership_price) AS Revenue_Per_Month
+FROM
+	Members m
+INNER JOIN Membership ms 
+ON
+	m.member_id = ms.member_id
+INNER JOIN MembershipTypes mst ON
+	ms.membership_type = mst.membership_type
+GROUP BY
+	monthname(m.joining_date);
+
+----------------------------------------------------------------------------
+
+/* QUERY 15: create view called vw_trainer_income that returns id, full name and income of each trainer
+ This VIEW can also be used to know high income trainer using limit*/
+
+CREATE OR REPLACE VIEW vw_trainer_income AS
+SELECT
+	t.trainer_id,
+	concat (t.first_name,
+	" ",
+	t.last_name) AS full_name,
+	(count(s.trainer_id)* t.rate_per_hour)AS income
+FROM
+	sessions s
+JOIN trainers t ON
+	t.trainer_id = s.trainer_id
+GROUP BY
+	s.trainer_id ORDER BY income DESC ;
+
+-- to validate view is created sucessfully
+-- SELECT * FROM vw_trainer_income; 
+
+
+-- selct high income trainers based on their income
+SELECT * FROM vw_trainer_income LIMIT 1; 
+
+----------------------------------------------------------------------------
+
+/* QUERY 16: create a procedure to update the hourly rate of trainer
+ 
+ In this procedure there are two inputs - trainer_id and percentage_increase
+ */
+
+DELIMITER //
+
+CREATE PROCEDURE rate_uplift(
+p_trainer_id INT, p_rate_increase Decimal(10,2))
+BEGIN
+	UPDATE trainers
+	SET rate_per_hour = rate_per_hour + (rate_per_hour * P_rate_increase/100)
+	WHERE trainer_id = P_trainer_id;
+END //
+
+DELIMITER ;
+
+CALL rate_uplift(1001, 20);  -- input trainer_id and new_rate
+
+
+-- to drop procedure
+-- DROP PROCEDURE rate_uplift; 
+
+----------------------------------------------------------------------------
+
+-- QUERY 17: Set joining date as auto set date in members table using trigger at the time of insert into the table
+
+DELIMITER //
+
+CREATE TRIGGER before_member_insert
+BEFORE INSERT ON members
+FOR EACH ROW 
+BEGIN 
+	SET NEW.joining_date = now();
+END;
+
+DELIMITER ;
+
+-- to drop trigger
+-- DROP TRIGGER before_member_insert; 
+
+----------------------------------------------------------------------------
+
+-- QUERY 18: to check the status of membership - using funtion
+
+DELIMITER $$
+CREATE FUNCTION membership_status(id INT)
+RETURNS VARCHAR(101)
+DETERMINISTIC
+BEGIN 
+	DECLARE expiry_date DATE;
+	DECLARE status VARCHAR(101);
+
+	SET expiry_date = (
+		SELECT
+			DATE_ADD(m.joining_date, INTERVAL ms.membership_period MONTH)
+		FROM
+			membership ms
+		INNER JOIN members m ON
+			ms.member_id = m.member_id
+		WHERE
+			m.member_id = id
+	);
+	SET status = IF(expiry_date < now(), 'Expired', 'Active');
+	RETURN status;
+END; 
+
+DELIMITER $$
+
+
+ -- to find memebrship status of members along with their member_id, full_name and joining date
+SELECT
+	member_id,
+	concat(first_name, " ", last_name) AS full_name,
+	joining_date, 
+	membership_status(member_id) AS status
+FROM
+	members;
+
+
+
+
+-

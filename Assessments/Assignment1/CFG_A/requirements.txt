@@ -1,0 +1,6 @@
+This is a requirement text file that lists all dependencies and their versions required to run a project
+For example,
+Package_1==1.2.1
+Package_2==10.3.4
+Package_3==4.2.6
+Package_4==8.5.1
