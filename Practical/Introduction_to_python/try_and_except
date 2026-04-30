@@ -1,0 +1,10 @@
+###
+try:
+    x=int(input("enter a number: "))
+    y=10/x
+except:
+    print("please enter non zero number!")
+else:
+    print("sucess!")
+finally:
+    print("Done")
